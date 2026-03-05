@@ -1,4 +1,4 @@
--- RankIt MVP Database Schema
+-- Rankeame MVP Database Schema
 -- Run this in your Supabase SQL editor to set up the database.
 
 -- Contests table: stores each voting contest created by a host.
