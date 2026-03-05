@@ -9,6 +9,45 @@ const typeBgs: Record<string, { bg: string; border: string }> = {
   color:     { bg: "bg-green-50",  border: "border-green-100" },
   inicial:   { bg: "bg-blue-50",   border: "border-blue-100" },
 };
+
+const exampleRankings = [
+  {
+    emoji: "🍕",
+    title: "Mejores Pizzerías",
+    color: "border-red-100",
+    headerBg: "bg-red-50",
+    badge: "bg-red-100 text-red-600",
+    entries: [
+      { pos: 1, name: "La Bicicleta", score: 9.4 },
+      { pos: 2, name: "Fratelli",     score: 8.8 },
+      { pos: 3, name: "Grosso Napoletano", score: 8.5 },
+    ],
+  },
+  {
+    emoji: "🍔",
+    title: "Mejores Hamburguesas",
+    color: "border-amber-100",
+    headerBg: "bg-amber-50",
+    badge: "bg-amber-100 text-amber-600",
+    entries: [
+      { pos: 1, name: "Goiko",        score: 9.1 },
+      { pos: 2, name: "TGB",          score: 8.6 },
+      { pos: 3, name: "Honest Greens", score: 8.2 },
+    ],
+  },
+  {
+    emoji: "🍜",
+    title: "Mejores Ramens",
+    color: "border-indigo-100",
+    headerBg: "bg-indigo-50",
+    badge: "bg-indigo-100 text-indigo-600",
+    entries: [
+      { pos: 1, name: "Mensho Tokyo", score: 9.6 },
+      { pos: 2, name: "Kappabashi",   score: 9.0 },
+      { pos: 3, name: "Ichiran",      score: 8.7 },
+    ],
+  },
+];
 ---
 
 <BaseLayout
@@ -71,6 +110,55 @@ const typeBgs: Record<string, { bg: string; border: string }> = {
           </div>
         );
       })}
+    </div>
+  </section>
+
+  <!-- RANKINGS DE EJEMPLO -->
+  <section class="py-8 bg-slate-50">
+    <div class="max-w-md mx-auto px-4">
+      <h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1 text-center">
+        Rankings populares
+      </h2>
+      <p class="text-center text-sm text-slate-500 mb-5">
+        Así quedan los resultados en tu grupo
+      </p>
+      <div class="flex flex-col gap-4">
+        {exampleRankings.map((r) => (
+          <div class={`bg-white rounded-2xl border ${r.color} shadow-sm overflow-hidden`}>
+            <div class={`${r.headerBg} px-4 py-3 flex items-center gap-2 border-b ${r.color}`}>
+              <span class="text-xl">{r.emoji}</span>
+              <span class="font-bold text-slate-800 text-sm">{r.title}</span>
+              <span class={`ml-auto text-xs font-semibold px-2 py-0.5 rounded-full ${r.badge}`}>
+                ejemplo
+              </span>
+            </div>
+            <div class="divide-y divide-slate-50">
+              {r.entries.map((e) => (
+                <div class="flex items-center gap-3 px-4 py-2.5">
+                  <span class={
+                    e.pos === 1
+                      ? "w-6 h-6 rounded-full bg-amber-400 text-white text-xs font-bold flex items-center justify-center"
+                      : "w-6 h-6 rounded-full bg-slate-100 text-slate-500 text-xs font-semibold flex items-center justify-center"
+                  }>
+                    {e.pos === 1 ? "🥇" : e.pos}
+                  </span>
+                  <span class="flex-1 text-sm font-medium text-slate-700">{e.name}</span>
+                  <span class="text-sm font-bold text-slate-900">{e.score.toFixed(1)}</span>
+                  <div class="w-20 bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                    <div
+                      class="h-full bg-orange-400 rounded-full"
+                      style={`width: ${(e.score / 10) * 100}%`}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+      <p class="text-center text-xs text-slate-400 mt-4">
+        ¿Tu grupo tiene los mejores? Crea tu propio ranking 👇
+      </p>
     </div>
   </section>
 
