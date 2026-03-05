@@ -2,6 +2,7 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import VotingForm from "../../components/VotingForm";
 import { supabase } from "../../lib/supabase";
+import { getCriteria } from "../../lib/contestTypes";
 
 const { id } = Astro.params;
 
@@ -11,13 +12,15 @@ if (!id) {
 
 const { data: contest, error } = await supabase
   .from("contests")
-  .select("id, name")
+  .select("id, name, contest_type")
   .eq("id", id)
   .single();
 
 if (error || !contest) {
   return Astro.redirect("/");
 }
+
+const criteria = getCriteria(contest.contest_type ?? "tortillas");
 ---
 
 <BaseLayout title={`Votar · ${contest.name}`} description={`Emite tu voto en ${contest.name}`}>
@@ -37,6 +40,7 @@ if (error || !contest) {
       <VotingForm
         contestId={contest.id}
         contestName={contest.name}
+        criteria={criteria}
         client:load
       />
     </section>

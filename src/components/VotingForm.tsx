@@ -5,16 +5,13 @@ import { useState } from "react";
 interface VotingFormProps {
   contestId: string;
   contestName: string;
+  criteria: string[];
 }
 
-// Elementos por defecto del MVP. En futuras versiones, el anfitrión podrá
-// definir sus propios elementos al crear el concurso (guardados en la tabla contests).
-const DEFAULT_ITEMS = ["Elemento 1", "Elemento 2", "Elemento 3"];
-
-export default function VotingForm({ contestId, contestName }: VotingFormProps) {
+export default function VotingForm({ contestId, contestName, criteria }: VotingFormProps) {
   const [guestName, setGuestName] = useState("");
   const [scores, setScores] = useState<Record<string, number>>(
-    Object.fromEntries(DEFAULT_ITEMS.map((item) => [item, 5]))
+    Object.fromEntries(criteria.map((c) => [c, 5]))
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

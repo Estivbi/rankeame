@@ -1,13 +1,18 @@
--- RankIt MVP Database Schema
+-- Rankeame MVP Database Schema
 -- Run this in your Supabase SQL editor to set up the database.
 
 -- Contests table: stores each voting contest created by a host.
 create table if not exists contests (
-  id          uuid primary key default gen_random_uuid(),
-  name        text not null,
-  host_token  text not null,  -- token opaco guardado en localStorage del anfitrión
-  created_at  timestamptz not null default now()
+  id            uuid primary key default gen_random_uuid(),
+  name          text not null,
+  host_token    text not null,  -- token opaco guardado en localStorage del anfitrión
+  contest_type  text not null default 'tortillas',  -- tipo predefinido: tortillas | croquetas | color | inicial
+  created_at    timestamptz not null default now()
 );
+
+-- Migration: add contest_type to existing installations
+-- Run this only if upgrading from a previous schema:
+-- alter table contests add column if not exists contest_type text not null default 'tortillas';
 
 -- Votes table: each guest submits one vote per contest.
 -- The unique constraint on (contest_id, guest_name) prevents duplicate submissions
