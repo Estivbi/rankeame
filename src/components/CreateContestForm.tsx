@@ -53,16 +53,23 @@ export default function CreateContestForm() {
       {/* Tipo de concurso */}
       <div className="space-y-2">
         <p
+          id="contest-type-label"
           className="block text-sm font-medium"
           style={{ color: "var(--color-foreground)" }}
         >
           Tipo de concurso
         </p>
-        <div className="grid grid-cols-2 gap-2">
+        <div
+          className="grid grid-cols-2 gap-2"
+          role="radiogroup"
+          aria-labelledby="contest-type-label"
+        >
           {CONTEST_TEMPLATES.map((template) => (
             <button
               key={template.id}
               type="button"
+              role="radio"
+              aria-checked={contestType === template.id}
               onClick={() => setContestType(template.id)}
               disabled={loading}
               className="flex flex-col items-center gap-1 rounded-xl border px-3 py-3 text-sm font-medium transition disabled:opacity-50"

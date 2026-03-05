@@ -7,7 +7,18 @@ export const POST: APIRoute = async ({ request }) => {
   try {
     const body = await request.json();
     const name = (body?.name ?? "").trim();
-    const contest_type = (body?.contest_type ?? "tortillas").trim();
+
+    const rawContestType = body?.contest_type;
+
+    if (rawContestType !== undefined && rawContestType !== null && typeof rawContestType !== "string") {
+      return new Response(
+        JSON.stringify({ error: "El tipo de concurso debe ser una cadena de texto" }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    const contest_type =
+      typeof rawContestType === "string" ? rawContestType.trim().toLowerCase() : "tortillas";
 
     if (!name) {
       return new Response(JSON.stringify({ error: "El nombre del concurso es obligatorio" }), {
