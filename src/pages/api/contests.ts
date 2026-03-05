@@ -1,11 +1,24 @@
 import type { APIRoute } from "astro";
 import { supabase } from "../../lib/supabase";
+import { CONTEST_TYPE_IDS } from "../../lib/contestTypes";
 import { randomUUID } from "crypto";
 
 export const POST: APIRoute = async ({ request }) => {
   try {
     const body = await request.json();
     const name = (body?.name ?? "").trim();
+
+    const rawContestType = body?.contest_type;
+
+    if (rawContestType !== undefined && rawContestType !== null && typeof rawContestType !== "string") {
+      return new Response(
+        JSON.stringify({ error: "El tipo de concurso debe ser una cadena de texto" }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    const contest_type =
+      typeof rawContestType === "string" ? rawContestType.trim().toLowerCase() : "tortillas";
 
     if (!name) {
       return new Response(JSON.stringify({ error: "El nombre del concurso es obligatorio" }), {
@@ -21,12 +34,19 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
+    if (!CONTEST_TYPE_IDS.includes(contest_type as (typeof CONTEST_TYPE_IDS)[number])) {
+      return new Response(
+        JSON.stringify({ error: "Tipo de concurso no válido" }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
     const hostToken = randomUUID();
 
     const { data, error } = await supabase
       .from("contests")
-      .insert({ name, host_token: hostToken })
-      .select("id, name, created_at")
+      .insert({ name, host_token: hostToken, contest_type })
+      .select("id, name, contest_type, created_at")
       .single();
 
     if (error) {

@@ -16,7 +16,7 @@ export default defineConfig({
         manifest: {
           name: "Rankeame",
           short_name: "Rankeame",
-          description: "Frictionless real-time voting for friends",
+          description: "Votaciones en tiempo real sin registro",
           theme_color: "#0f172a",
           background_color: "#0f172a",
           display: "standalone",

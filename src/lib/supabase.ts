@@ -14,6 +14,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 export type Contest = {
   id: string;
   name: string;
+  contest_type: string;
   created_at: string;
   host_token: string;
 };

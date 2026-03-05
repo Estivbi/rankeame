@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { CONTEST_TEMPLATES, type ContestType } from "../lib/contestTypes";
 
 export default function CreateContestForm() {
   const [name, setName] = useState("");
+  const [contestType, setContestType] = useState<ContestType>("tortillas");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -22,7 +24,7 @@ export default function CreateContestForm() {
       const res = await fetch("/api/contests", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: trimmed }),
+        body: JSON.stringify({ name: trimmed, contest_type: contestType }),
       });
 
       const data = await res.json();
@@ -44,8 +46,63 @@ export default function CreateContestForm() {
     }
   };
 
+  const selectedTemplate = CONTEST_TEMPLATES.find((t) => t.id === contestType)!;
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-5">
+      {/* Tipo de concurso */}
+      <div className="space-y-2">
+        <p
+          id="contest-type-label"
+          className="block text-sm font-medium"
+          style={{ color: "var(--color-foreground)" }}
+        >
+          Tipo de concurso
+        </p>
+        <div
+          className="grid grid-cols-2 gap-2"
+          role="radiogroup"
+          aria-labelledby="contest-type-label"
+        >
+          {CONTEST_TEMPLATES.map((template) => (
+            <button
+              key={template.id}
+              type="button"
+              role="radio"
+              aria-checked={contestType === template.id}
+              onClick={() => setContestType(template.id)}
+              disabled={loading}
+              className="flex flex-col items-center gap-1 rounded-xl border px-3 py-3 text-sm font-medium transition disabled:opacity-50"
+              style={{
+                borderColor:
+                  contestType === template.id
+                    ? "var(--color-primary)"
+                    : "var(--color-border)",
+                backgroundColor:
+                  contestType === template.id
+                    ? "var(--color-accent)"
+                    : "var(--color-background)",
+                color: "var(--color-foreground)",
+                boxShadow:
+                  contestType === template.id
+                    ? "0 0 0 2px var(--color-primary)"
+                    : "none",
+              }}
+            >
+              <span className="text-2xl">{template.emoji}</span>
+              <span>{template.label}</span>
+            </button>
+          ))}
+        </div>
+        <p className="text-xs" style={{ color: "var(--color-muted-foreground)" }}>
+          Criterios:{" "}
+          <span className="font-medium" style={{ color: "var(--color-foreground)" }}>
+            {selectedTemplate.criteria.join(", ")}
+          </span>
+        </p>
+      </div>
+
+      {/* Nombre del concurso */}
       <div className="space-y-1.5">
         <label
           htmlFor="contest-name"
@@ -59,7 +116,7 @@ export default function CreateContestForm() {
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="ej. Los mejores sitios de pizza"
+          placeholder="ej. Tortillas del barrio"
           maxLength={100}
           required
           disabled={loading}
