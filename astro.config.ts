@@ -14,9 +14,9 @@ export default defineConfig({
       VitePWA({
         registerType: "autoUpdate",
         manifest: {
-          name: "RankIt",
-          short_name: "RankIt",
-          description: "Frictionless real-time voting for friends",
+          name: "Rankeame",
+          short_name: "Rankeame",
+          description: "Votaciones en tiempo real sin registro",
           theme_color: "#0f172a",
           background_color: "#0f172a",
           display: "standalone",
