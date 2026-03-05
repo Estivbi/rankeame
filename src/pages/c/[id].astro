@@ -1,0 +1,113 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Leaderboard from "../../components/Leaderboard";
+import { supabase } from "../../lib/supabase";
+
+const { id } = Astro.params;
+
+if (!id) {
+  return Astro.redirect("/");
+}
+
+const { data: contest, error } = await supabase
+  .from("contests")
+  .select("id, name, created_at")
+  .eq("id", id)
+  .single();
+
+if (error || !contest) {
+  return Astro.redirect("/");
+}
+
+const voteUrl = `${Astro.url.origin}/vote/${id}`;
+const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+---
+
+<BaseLayout title={contest.name}>
+  <div class="space-y-6 py-6">
+    <!-- Header -->
+    <header class="space-y-1">
+      <p class="text-xs font-semibold uppercase tracking-widest text-[var(--color-muted-foreground)]">
+        Contest
+      </p>
+      <h1 class="text-2xl font-bold leading-tight">{contest.name}</h1>
+    </header>
+
+    <!-- Share section -->
+    <section
+      class="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-5 space-y-4"
+    >
+      <h2 class="text-sm font-semibold">Invite friends to vote</h2>
+
+      <!-- Vote URL copy -->
+      <div class="space-y-1.5">
+        <label class="text-xs text-[var(--color-muted-foreground)]">Voting link</label>
+        <div class="flex gap-2">
+          <input
+            id="vote-url"
+            type="text"
+            readonly
+            value={voteUrl}
+            class="flex-1 rounded-lg border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-xs font-mono outline-none select-all"
+          />
+          <button
+            id="copy-btn"
+            class="shrink-0 rounded-lg px-3 py-2 text-xs font-semibold transition"
+            style="background-color: var(--color-primary); color: var(--color-primary-foreground);"
+          >
+            Copy
+          </button>
+        </div>
+      </div>
+
+      <!-- PIN display -->
+      <div class="space-y-1.5">
+        <label class="text-xs text-[var(--color-muted-foreground)]">PIN (last 6 chars)</label>
+        <div
+          class="rounded-lg border border-[var(--color-border)] px-4 py-3 text-center font-mono text-2xl font-bold tracking-[0.3em]"
+        >
+          {id.slice(-6).toUpperCase()}
+        </div>
+      </div>
+    </section>
+
+    <!-- Leaderboard -->
+    <section class="space-y-3">
+      <h2 class="text-sm font-semibold">Live Leaderboard</h2>
+      <Leaderboard
+        contestId={id}
+        supabaseUrl={supabaseUrl}
+        supabaseAnonKey={supabaseAnonKey}
+        client:load
+      />
+    </section>
+
+    <!-- Vote yourself link -->
+    <a
+      href={`/vote/${id}`}
+      class="block w-full rounded-xl border border-[var(--color-border)] py-3 text-center text-sm font-semibold transition hover:bg-[var(--color-accent)]"
+    >
+      Cast your own vote →
+    </a>
+  </div>
+</BaseLayout>
+
+<script>
+  const btn = document.getElementById("copy-btn");
+  const input = document.getElementById("vote-url") as HTMLInputElement | null;
+
+  btn?.addEventListener("click", async () => {
+    if (!input) return;
+    try {
+      await navigator.clipboard.writeText(input.value);
+      btn.textContent = "Copied!";
+      setTimeout(() => {
+        btn.textContent = "Copy";
+      }, 2000);
+    } catch {
+      // Fallback: select text for manual copy
+      input.select();
+    }
+  });
+</script>

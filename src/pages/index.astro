@@ -1,0 +1,56 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import CreateContestForm from "../components/CreateContestForm";
+---
+
+<BaseLayout title="Welcome">
+  <div class="flex flex-col items-center gap-8 py-12">
+    <!-- Hero -->
+    <header class="text-center space-y-3">
+      <div class="text-5xl font-bold tracking-tight">
+        <span
+          class="bg-gradient-to-r from-violet-400 to-indigo-400 bg-clip-text text-transparent"
+        >
+          RankIt
+        </span>
+      </div>
+      <p class="text-lg text-[var(--color-muted-foreground)]">
+        Create a contest. Share the link. Vote together — no sign-up needed.
+      </p>
+    </header>
+
+    <!-- Create contest card -->
+    <section
+      class="w-full rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-6 shadow-lg"
+    >
+      <h2 class="mb-5 text-xl font-semibold text-[var(--color-card-foreground)]">
+        Start a new contest
+      </h2>
+      <CreateContestForm client:load />
+    </section>
+
+    <!-- How it works -->
+    <section class="w-full space-y-3">
+      <h3 class="text-xs font-semibold uppercase tracking-widest text-[var(--color-muted-foreground)]">
+        How it works
+      </h3>
+      <ol class="space-y-2">
+        {
+          [
+            { step: "1", label: "Create a contest with a name" },
+            { step: "2", label: "Share the link or PIN with friends" },
+            { step: "3", label: "Everyone votes using sliders (1–10)" },
+            { step: "4", label: "Watch the leaderboard update live" },
+          ].map(({ step, label }) => (
+            <li class="flex items-center gap-3 text-sm text-[var(--color-foreground)]">
+              <span class="flex size-7 shrink-0 items-center justify-center rounded-full bg-[var(--color-primary)] text-xs font-bold text-white">
+                {step}
+              </span>
+              {label}
+            </li>
+          ))
+        }
+      </ol>
+    </section>
+  </div>
+</BaseLayout>
