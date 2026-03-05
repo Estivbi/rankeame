@@ -54,6 +54,7 @@ export default function Leaderboard({
 }: LeaderboardProps) {
   const [votes, setVotes] = useState<Vote[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
 
   useEffect(() => {
     const client = createClient(supabaseUrl, supabaseAnonKey);
@@ -64,12 +65,18 @@ export default function Leaderboard({
       .select("id, guest_name, scores_json, created_at")
       .eq("contest_id", contestId)
       .order("created_at", { ascending: true })
-      .then(({ data }) => {
-        if (data) setVotes(data as Vote[]);
+      .then(({ data, error }) => {
+        if (error) {
+          setFetchError(true);
+        } else if (data) {
+          setVotes(data as Vote[]);
+        }
         setLoading(false);
       });
 
-    // Realtime subscription
+    // Realtime subscription — deduplicate by vote id to avoid race condition
+    // where a vote inserted between subscription setup and initial fetch resolve
+    // could appear twice.
     const channel = client
       .channel(`votes:${contestId}`)
       .on(
@@ -81,7 +88,10 @@ export default function Leaderboard({
           filter: `contest_id=eq.${contestId}`,
         },
         (payload) => {
-          setVotes((prev) => [...prev, payload.new as Vote]);
+          const newVote = payload.new as Vote;
+          setVotes((prev) =>
+            prev.some((v) => v.id === newVote.id) ? prev : [...prev, newVote]
+          );
         }
       )
       .subscribe();
@@ -96,7 +106,18 @@ export default function Leaderboard({
   if (loading) {
     return (
       <div className="flex items-center justify-center py-8 text-sm" style={{ color: "var(--color-muted-foreground)" }}>
-        <span className="animate-pulse">Loading votes…</span>
+        <span className="animate-pulse">Cargando votos…</span>
+      </div>
+    );
+  }
+
+  if (fetchError) {
+    return (
+      <div className="rounded-xl border py-10 text-center" style={{ borderColor: "var(--color-border)" }}>
+        <p className="text-3xl mb-2">⚠️</p>
+        <p className="text-sm font-medium" style={{ color: "var(--color-muted-foreground)" }}>
+          Error al cargar los votos. Por favor, recarga la página.
+        </p>
       </div>
     );
   }
@@ -106,7 +127,7 @@ export default function Leaderboard({
       <div className="rounded-xl border py-10 text-center" style={{ borderColor: "var(--color-border)" }}>
         <p className="text-3xl mb-2">🗳️</p>
         <p className="text-sm font-medium" style={{ color: "var(--color-muted-foreground)" }}>
-          No votes yet — share the link to get started!
+          Aún no hay votos — ¡comparte el enlace para empezar!
         </p>
       </div>
     );
@@ -117,7 +138,7 @@ export default function Leaderboard({
   return (
     <div className="space-y-2">
       <p className="text-xs" style={{ color: "var(--color-muted-foreground)" }}>
-        {votes.length} vote{votes.length !== 1 ? "s" : ""} • Updates live
+        {votes.length} {votes.length !== 1 ? "votos" : "voto"} • Actualización en tiempo real
       </p>
       <ol className="space-y-2">
         {leaderboard.map((entry, idx) => (
@@ -153,7 +174,7 @@ export default function Leaderboard({
             <div className="text-right shrink-0">
               <span className="text-lg font-bold">{entry.avgScore.toFixed(1)}</span>
               <p className="text-xs" style={{ color: "var(--color-muted-foreground)" }}>
-                {entry.voteCount} vote{entry.voteCount !== 1 ? "s" : ""}
+                {entry.voteCount} {entry.voteCount !== 1 ? "votos" : "voto"}
               </p>
             </div>
           </li>

@@ -7,7 +7,7 @@ export const POST: APIRoute = async ({ request }) => {
     const { contest_id, guest_name, scores_json } = body ?? {};
 
     if (!contest_id || typeof contest_id !== "string") {
-      return new Response(JSON.stringify({ error: "contest_id is required" }), {
+      return new Response(JSON.stringify({ error: "El campo contest_id es obligatorio" }), {
         status: 400,
         headers: { "Content-Type": "application/json" },
       });
@@ -15,7 +15,7 @@ export const POST: APIRoute = async ({ request }) => {
 
     const name = (guest_name ?? "").trim();
     if (!name) {
-      return new Response(JSON.stringify({ error: "guest_name is required" }), {
+      return new Response(JSON.stringify({ error: "El campo guest_name es obligatorio" }), {
         status: 400,
         headers: { "Content-Type": "application/json" },
       });
@@ -23,7 +23,7 @@ export const POST: APIRoute = async ({ request }) => {
 
     if (name.length > 50) {
       return new Response(
-        JSON.stringify({ error: "Name must be 50 characters or less" }),
+        JSON.stringify({ error: "El nombre debe tener 50 caracteres o menos" }),
         { status: 400, headers: { "Content-Type": "application/json" } }
       );
     }
@@ -35,7 +35,7 @@ export const POST: APIRoute = async ({ request }) => {
       Object.keys(scores_json).length === 0
     ) {
       return new Response(
-        JSON.stringify({ error: "scores_json must be a non-empty object" }),
+        JSON.stringify({ error: "scores_json debe ser un objeto no vacío" }),
         { status: 400, headers: { "Content-Type": "application/json" } }
       );
     }
@@ -45,7 +45,7 @@ export const POST: APIRoute = async ({ request }) => {
       if (typeof value !== "number" || !Number.isInteger(value) || value < 1 || value > 10) {
         return new Response(
           JSON.stringify({
-            error: `Score for "${key}" must be an integer between 1 and 10`,
+            error: `La puntuación de "${key}" debe ser un entero entre 1 y 10`,
           }),
           { status: 400, headers: { "Content-Type": "application/json" } }
         );
@@ -60,7 +60,7 @@ export const POST: APIRoute = async ({ request }) => {
       .single();
 
     if (contestError || !contest) {
-      return new Response(JSON.stringify({ error: "Contest not found" }), {
+      return new Response(JSON.stringify({ error: "Concurso no encontrado" }), {
         status: 404,
         headers: { "Content-Type": "application/json" },
       });
@@ -74,7 +74,7 @@ export const POST: APIRoute = async ({ request }) => {
 
     if (error) {
       console.error("Supabase error submitting vote:", error);
-      return new Response(JSON.stringify({ error: "Failed to submit vote" }), {
+      return new Response(JSON.stringify({ error: "Error al enviar el voto" }), {
         status: 500,
         headers: { "Content-Type": "application/json" },
       });
@@ -85,7 +85,7 @@ export const POST: APIRoute = async ({ request }) => {
       headers: { "Content-Type": "application/json" },
     });
   } catch {
-    return new Response(JSON.stringify({ error: "Invalid request" }), {
+    return new Response(JSON.stringify({ error: "Solicitud inválida" }), {
       status: 400,
       headers: { "Content-Type": "application/json" },
     });

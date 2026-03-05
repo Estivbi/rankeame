@@ -8,7 +8,7 @@ export const POST: APIRoute = async ({ request }) => {
     const name = (body?.name ?? "").trim();
 
     if (!name) {
-      return new Response(JSON.stringify({ error: "Contest name is required" }), {
+      return new Response(JSON.stringify({ error: "El nombre del concurso es obligatorio" }), {
         status: 400,
         headers: { "Content-Type": "application/json" },
       });
@@ -16,7 +16,7 @@ export const POST: APIRoute = async ({ request }) => {
 
     if (name.length > 100) {
       return new Response(
-        JSON.stringify({ error: "Contest name must be 100 characters or less" }),
+        JSON.stringify({ error: "El nombre del concurso debe tener 100 caracteres o menos" }),
         { status: 400, headers: { "Content-Type": "application/json" } }
       );
     }
@@ -31,7 +31,7 @@ export const POST: APIRoute = async ({ request }) => {
 
     if (error) {
       console.error("Supabase error creating contest:", error);
-      return new Response(JSON.stringify({ error: "Failed to create contest" }), {
+      return new Response(JSON.stringify({ error: "Error al crear el concurso" }), {
         status: 500,
         headers: { "Content-Type": "application/json" },
       });
@@ -42,7 +42,7 @@ export const POST: APIRoute = async ({ request }) => {
       headers: { "Content-Type": "application/json" },
     });
   } catch {
-    return new Response(JSON.stringify({ error: "Invalid request" }), {
+    return new Response(JSON.stringify({ error: "Solicitud inválida" }), {
       status: 400,
       headers: { "Content-Type": "application/json" },
     });

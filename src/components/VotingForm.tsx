@@ -7,9 +7,9 @@ interface VotingFormProps {
   contestName: string;
 }
 
-// Default items for MVP. In a future iteration, hosts will be able to
-// define their own items when creating a contest (stored in the contests table).
-const DEFAULT_ITEMS = ["Item 1", "Item 2", "Item 3"];
+// Elementos por defecto del MVP. En futuras versiones, el anfitrión podrá
+// definir sus propios elementos al crear el concurso (guardados en la tabla contests).
+const DEFAULT_ITEMS = ["Elemento 1", "Elemento 2", "Elemento 3"];
 
 export default function VotingForm({ contestId, contestName }: VotingFormProps) {
   const [guestName, setGuestName] = useState("");
@@ -28,7 +28,7 @@ export default function VotingForm({ contestId, contestName }: VotingFormProps) 
     e.preventDefault();
     const name = guestName.trim();
     if (!name) {
-      setError("Please enter your name.");
+      setError("Por favor, introduce tu nombre.");
       return;
     }
 
@@ -49,13 +49,13 @@ export default function VotingForm({ contestId, contestName }: VotingFormProps) 
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error ?? "Something went wrong.");
+        setError(data.error ?? "Algo salió mal.");
         return;
       }
 
       setSubmitted(true);
     } catch {
-      setError("Network error. Please try again.");
+      setError("Error de red. Por favor, inténtalo de nuevo.");
     } finally {
       setLoading(false);
     }
@@ -65,9 +65,9 @@ export default function VotingForm({ contestId, contestName }: VotingFormProps) 
     return (
       <div className="flex flex-col items-center gap-4 py-10 text-center">
         <span className="text-5xl">🎉</span>
-        <h2 className="text-xl font-bold">Vote submitted!</h2>
+        <h2 className="text-xl font-bold">¡Voto enviado!</h2>
         <p className="text-sm" style={{ color: "var(--color-muted-foreground)" }}>
-          Thanks for voting in <strong>{contestName}</strong>.
+          Gracias por votar en <strong>{contestName}</strong>.
         </p>
         <a
           href={`/c/${contestId}`}
@@ -77,7 +77,7 @@ export default function VotingForm({ contestId, contestName }: VotingFormProps) 
             color: "var(--color-primary-foreground)",
           }}
         >
-          See the leaderboard →
+          Ver la clasificación →
         </a>
       </div>
     );
@@ -85,21 +85,21 @@ export default function VotingForm({ contestId, contestName }: VotingFormProps) 
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Guest name */}
+      {/* Nombre del participante */}
       <div className="space-y-1.5">
         <label
           htmlFor="guest-name"
           className="block text-sm font-medium"
           style={{ color: "var(--color-foreground)" }}
         >
-          Your name
+          Tu nombre
         </label>
         <input
           id="guest-name"
           type="text"
           value={guestName}
           onChange={(e) => setGuestName(e.target.value)}
-          placeholder="Enter your display name"
+          placeholder="Escribe tu nombre"
           maxLength={50}
           required
           disabled={loading}
@@ -112,10 +112,10 @@ export default function VotingForm({ contestId, contestName }: VotingFormProps) 
         />
       </div>
 
-      {/* Sliders */}
+      {/* Controles deslizantes */}
       <div className="space-y-4">
         <p className="text-sm font-medium" style={{ color: "var(--color-foreground)" }}>
-          Rate each item (1–10)
+          Puntúa cada elemento (1–10)
         </p>
         {Object.entries(scores).map(([item, value]) => (
           <div key={item} className="space-y-2">
@@ -141,14 +141,14 @@ export default function VotingForm({ contestId, contestName }: VotingFormProps) 
                 accentColor: "var(--color-primary)",
                 backgroundColor: "var(--color-border)",
               }}
-              aria-label={`Score for ${item}`}
+              aria-label={`Puntuación de ${item}`}
             />
             <div
               className="flex justify-between text-xs"
               style={{ color: "var(--color-muted-foreground)" }}
             >
-              <span>1 · Poor</span>
-              <span>10 · Excellent</span>
+              <span>1 · Malo</span>
+              <span>10 · Excelente</span>
             </div>
           </div>
         ))}
@@ -173,7 +173,7 @@ export default function VotingForm({ contestId, contestName }: VotingFormProps) 
           color: "var(--color-primary-foreground)",
         }}
       >
-        {loading ? "Submitting…" : "Submit Vote 🗳️"}
+        {loading ? "Enviando…" : "Enviar Voto 🗳️"}
       </button>
     </form>
   );

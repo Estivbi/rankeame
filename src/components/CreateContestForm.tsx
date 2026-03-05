@@ -11,7 +11,7 @@ export default function CreateContestForm() {
     e.preventDefault();
     const trimmed = name.trim();
     if (!trimmed) {
-      setError("Please enter a contest name.");
+      setError("Por favor, introduce un nombre para el concurso.");
       return;
     }
 
@@ -28,7 +28,7 @@ export default function CreateContestForm() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error ?? "Something went wrong.");
+        setError(data.error ?? "Algo salió mal.");
         return;
       }
 
@@ -38,7 +38,7 @@ export default function CreateContestForm() {
       // Redirect to the contest dashboard
       window.location.href = `/c/${data.id}`;
     } catch {
-      setError("Network error. Please try again.");
+      setError("Error de red. Por favor, inténtalo de nuevo.");
     } finally {
       setLoading(false);
     }
@@ -52,14 +52,14 @@ export default function CreateContestForm() {
           className="block text-sm font-medium"
           style={{ color: "var(--color-foreground)" }}
         >
-          Contest name
+          Nombre del concurso
         </label>
         <input
           id="contest-name"
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="e.g. Best pizza spots in town"
+          placeholder="ej. Los mejores sitios de pizza"
           maxLength={100}
           required
           disabled={loading}
@@ -94,7 +94,7 @@ export default function CreateContestForm() {
           color: "var(--color-primary-foreground)",
         }}
       >
-        {loading ? "Creating…" : "Create Contest →"}
+        {loading ? "Creando…" : "Crear Concurso →"}
       </button>
     </form>
   );

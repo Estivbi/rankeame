@@ -29,7 +29,7 @@ const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
     <!-- Header -->
     <header class="space-y-1">
       <p class="text-xs font-semibold uppercase tracking-widest text-[var(--color-muted-foreground)]">
-        Contest
+        Concurso
       </p>
       <h1 class="text-2xl font-bold leading-tight">{contest.name}</h1>
     </header>
@@ -38,11 +38,13 @@ const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
     <section
       class="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-5 space-y-4"
     >
-      <h2 class="text-sm font-semibold">Invite friends to vote</h2>
+      <h2 class="text-sm font-semibold">Invita a tus amigos a votar</h2>
 
       <!-- Vote URL copy -->
       <div class="space-y-1.5">
-        <label class="text-xs text-[var(--color-muted-foreground)]">Voting link</label>
+        <label for="vote-url" class="text-xs text-[var(--color-muted-foreground)]">
+          Enlace para votar
+        </label>
         <div class="flex gap-2">
           <input
             id="vote-url"
@@ -56,14 +58,14 @@ const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
             class="shrink-0 rounded-lg px-3 py-2 text-xs font-semibold transition"
             style="background-color: var(--color-primary); color: var(--color-primary-foreground);"
           >
-            Copy
+            Copiar
           </button>
         </div>
       </div>
 
       <!-- PIN display -->
       <div class="space-y-1.5">
-        <label class="text-xs text-[var(--color-muted-foreground)]">PIN (last 6 chars)</label>
+        <p class="text-xs text-[var(--color-muted-foreground)]">PIN (últimos 6 caracteres)</p>
         <div
           class="rounded-lg border border-[var(--color-border)] px-4 py-3 text-center font-mono text-2xl font-bold tracking-[0.3em]"
         >
@@ -74,7 +76,7 @@ const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
 
     <!-- Leaderboard -->
     <section class="space-y-3">
-      <h2 class="text-sm font-semibold">Live Leaderboard</h2>
+      <h2 class="text-sm font-semibold">Clasificación en tiempo real</h2>
       <Leaderboard
         contestId={id}
         supabaseUrl={supabaseUrl}
@@ -88,7 +90,7 @@ const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
       href={`/vote/${id}`}
       class="block w-full rounded-xl border border-[var(--color-border)] py-3 text-center text-sm font-semibold transition hover:bg-[var(--color-accent)]"
     >
-      Cast your own vote →
+      Emite tu voto →
     </a>
   </div>
 </BaseLayout>
@@ -101,9 +103,9 @@ const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
     if (!input) return;
     try {
       await navigator.clipboard.writeText(input.value);
-      btn.textContent = "Copied!";
+      btn.textContent = "¡Copiado!";
       setTimeout(() => {
-        btn.textContent = "Copy";
+        btn.textContent = "Copiar";
       }, 2000);
     } catch {
       // Fallback: select text for manual copy
