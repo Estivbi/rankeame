@@ -26,36 +26,72 @@ Rankeame es una PWA (Progressive Web App) móvil-first que permite organizar con
 ## Stack Tecnológico
 
 - **Framework**: [Astro](https://astro.build/) (SSR) + [React](https://react.dev/) (islas interactivas)
-- **Base de datos**: [Supabase](https://supabase.com/) (PostgreSQL + Realtime)
+- **Base de datos**: [Supabase](https://supabase.com/) (PostgreSQL + Realtime) — plan gratuito
 - **Estilos**: [Tailwind CSS v4](https://tailwindcss.com/)
-- **Despliegue**: Node.js standalone (adaptador `@astrojs/node`)
+- **Despliegue**: [Vercel](https://vercel.com/) (adaptador `@astrojs/vercel`)
 
-## Primeros pasos
+## Despliegue en Vercel (configuración completa)
+
+> La aplicación necesita una base de datos Supabase (plan gratuito). Sin ella, al intentar crear un concurso verás un error de configuración en lugar de "error de red".
+
+### Paso 1 — Crea un proyecto Supabase (gratis)
+
+1. Ve a [supabase.com](https://supabase.com) y crea una cuenta gratuita.
+2. Pulsa **"New project"**, elige un nombre (p. ej. `rankeame`) y una contraseña para la base de datos, y selecciona la región más cercana.
+3. Espera a que el proyecto se inicialice (~1 minuto).
+
+### Paso 2 — Crea las tablas
+
+1. En el panel de Supabase, abre **SQL Editor** (icono de terminal en el menú lateral).
+2. Pulsa **"New query"**, pega el contenido de `supabase/schema.sql` y ejecuta con **"Run"**.
+3. Verás los mensajes `Success. No rows returned` para cada sentencia — eso es correcto.
+
+> El script activa automáticamente Row Level Security y Realtime para la tabla `votes`.
+
+### Paso 3 — Obtén las credenciales
+
+1. En el panel de Supabase ve a **Project Settings → API**.
+2. Copia los dos valores que necesitarás en el paso siguiente:
+   - **Project URL** (algo como `https://xyzabc.supabase.co`)
+   - **anon / public key** (la clave pública larga que empieza por `eyJ...`)
+
+### Paso 4 — Configura las variables de entorno en Vercel
+
+1. En el panel de Vercel, abre tu proyecto y ve a **Settings → Environment Variables**.
+2. Añade las dos variables siguientes (para los entornos **Production**, **Preview** y **Development**):
+
+   | Nombre | Valor |
+   |--------|-------|
+   | `PUBLIC_SUPABASE_URL` | `https://xyzabc.supabase.co` |
+   | `PUBLIC_SUPABASE_ANON_KEY` | `eyJhbGci...` (la anon key) |
+
+3. Guarda los cambios y **haz un nuevo deploy** (pestaña **Deployments → Redeploy**).
+
+### Paso 5 — Verifica que funciona
+
+Abre la aplicación desplegada, introduce el nombre de un concurso y pulsa **Crear Concurso**. Si todo está bien, serás redirigido al dashboard del concurso.
+
+---
+
+## Desarrollo local
 
 ### 1. Configura las variables de entorno
 
-Crea un archivo `.env` basándote en `.env.example`:
+Crea un archivo `.env.local` basándote en `.env.example`:
 
 ```env
 PUBLIC_SUPABASE_URL=https://tu-proyecto.supabase.co
 PUBLIC_SUPABASE_ANON_KEY=tu-anon-key
 ```
 
-### 2. Crea las tablas en Supabase
-
-Ejecuta el contenido de `supabase/schema.sql` en el editor SQL de tu proyecto Supabase.
-
-> **Si actualizas desde una instalación anterior**, ejecuta también:
-> ```sql
-> alter table contests add column if not exists contest_type text not null default 'tortillas';
-> ```
-
-### 3. Instala las dependencias y arranca
+### 2. Instala las dependencias y arranca
 
 ```bash
 npm install
 npm run dev
 ```
+
+---
 
 ## Estructura del proyecto
 
