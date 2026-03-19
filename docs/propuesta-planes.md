@@ -84,12 +84,12 @@ restaurantes, franquicias gastronómicas, organizadores de ferias de comida.
 
 ## 📊 Proyección Inicial (12 meses)
 
-| Plan       | Estimación usuarios | Ingresos mensuales estimados |
-|------------|--------------------|-----------------------------|
-| Freemium   | 500–2.000          | 0 € (base viral + Ko-fi)     |
-| Premium    | 20–50 eventos/mes  | 200 – 500 €                  |
-| B2B        | 3–10 clientes      | 150 – 500 €                  |
-| **Total**  |                    | **~350 – 1.000 €/mes**       |
+| Plan      | Estimación usuarios | Ingresos mensuales estimados |
+|-----------|---------------------|------------------------------|
+| Freemium  | 500–2.000           | 0 € (base viral + Ko-fi)     |
+| Premium   | 20–50 eventos/mes   | 200 – 500 €                  |
+| B2B       | 3–10 clientes       | 150 – 500 €                  |
+| **Total** |                     | **~350 – 1.000 €/mes**       |
 
 ---
 

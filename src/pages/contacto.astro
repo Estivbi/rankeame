@@ -92,10 +92,22 @@ const web3FormsKey = import.meta.env.PUBLIC_WEB3FORMS_KEY ?? "TU_ACCESS_KEY_AQUI
         </button>
 
         <!-- Success / error messages -->
-        <p id="form-success" class="hidden text-center text-sm text-green-600 font-semibold">
+        <p
+          id="form-success"
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+          class="hidden text-center text-sm text-green-600 font-semibold"
+        >
           ✅ ¡Mensaje enviado! Te responderemos pronto.
         </p>
-        <p id="form-error" class="hidden text-center text-sm text-red-500 font-semibold">
+        <p
+          id="form-error"
+          role="alert"
+          aria-live="assertive"
+          aria-atomic="true"
+          class="hidden text-center text-sm text-red-500 font-semibold"
+        >
           ❌ Algo falló. Por favor inténtalo de nuevo.
         </p>
       </form>

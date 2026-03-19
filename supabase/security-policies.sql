@@ -25,8 +25,10 @@
 alter table contests enable row level security;
 
 -- Política: cualquier usuario (incluso anónimo) puede leer concursos.
--- Justificación: el acceso está implícitamente restringido por UUID, que solo
--- conocen quienes tengan el enlace o el PIN.
+-- Nota: con `using (true)` el rol anon podría listar todos los concursos si
+-- hace un SELECT sin filtros. Si se quiere impedir listados, desactiva SELECT
+-- directo y expón una RPC que lea por id.
+drop policy if exists "Anyone can read a contest" on contests;
 drop policy if exists "Invitados pueden leer concursos" on contests;
 create policy "Invitados pueden leer concursos"
   on contests
@@ -35,6 +37,7 @@ create policy "Invitados pueden leer concursos"
 
 -- Política: cualquier usuario (incluso anónimo) puede crear concursos.
 -- El host_token generado en cliente actúa como credencial ligera del anfitrión.
+drop policy if exists "Anyone can create a contest" on contests;
 drop policy if exists "Invitados pueden crear concursos" on contests;
 create policy "Invitados pueden crear concursos"
   on contests
@@ -67,6 +70,7 @@ alter table votes enable row level security;
 
 -- Política: cualquier usuario puede leer los votos de un concurso conocido.
 -- La condición verifica que el contest_id exista, evitando lecturas huérfanas.
+drop policy if exists "Anyone can read votes" on votes;
 drop policy if exists "Invitados pueden leer votos" on votes;
 create policy "Invitados pueden leer votos"
   on votes
@@ -77,6 +81,7 @@ create policy "Invitados pueden leer votos"
 
 -- Política: cualquier usuario puede votar en un concurso existente.
 -- La restricción unique(contest_id, guest_name) en el schema ya evita votos dobles.
+drop policy if exists "Anyone can submit a vote" on votes;
 drop policy if exists "Invitados pueden votar" on votes;
 create policy "Invitados pueden votar"
   on votes
