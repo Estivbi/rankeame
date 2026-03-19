@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import { supabase } from "../../lib/supabase";
+import { supabase, isSupabaseConfigured } from "../../lib/supabase";
 import { CONTEST_TYPE_IDS } from "../../lib/contestTypes";
 import { randomUUID } from "crypto";
 
@@ -38,6 +38,16 @@ export const POST: APIRoute = async ({ request }) => {
       return new Response(
         JSON.stringify({ error: "Tipo de concurso no válido" }),
         { status: 400, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    if (!isSupabaseConfigured) {
+      return new Response(
+        JSON.stringify({
+          error:
+            "La base de datos no está configurada. Añade las variables PUBLIC_SUPABASE_URL y PUBLIC_SUPABASE_ANON_KEY en los ajustes de entorno de Vercel.",
+        }),
+        { status: 503, headers: { "Content-Type": "application/json" } }
       );
     }
 
