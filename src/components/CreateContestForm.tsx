@@ -10,21 +10,28 @@ export default function CreateContestForm() {
   const [newItem, setNewItem] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [itemError, setItemError] = useState<string | null>(null);
 
   const addItem = () => {
     const trimmed = newItem.trim();
     if (!trimmed) return;
     if (items.includes(trimmed)) {
-      setError(`"${trimmed}" ya está en la lista de participantes.`);
+      setItemError(`"${trimmed}" ya está en la lista de participantes.`);
       return;
     }
     setItems((prev) => [...prev, trimmed]);
     setNewItem("");
-    setError(null);
+    setItemError(null);
   };
 
   const removeItem = (index: number) => {
     setItems((prev) => prev.filter((_, i) => i !== index));
+    setItemError(null);
+  };
+
+  const handleNewItemChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewItem(e.target.value);
+    if (itemError) setItemError(null);
   };
 
   const handleItemKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -42,7 +49,7 @@ export default function CreateContestForm() {
       return;
     }
     if (items.length === 0) {
-      setError("Añade al menos un participante antes de crear el concurso.");
+      setItemError("Añade al menos un participante antes de crear el concurso.");
       return;
     }
 
@@ -157,8 +164,7 @@ export default function CreateContestForm() {
             color: "var(--color-foreground)",
           }}
           aria-describedby={error ? "contest-name-error" : undefined}
-          aria-invalid={!!error}
-        />
+          aria-invalid={!!error}        />
         {error && (
           <p
             id="contest-name-error"
@@ -220,7 +226,7 @@ export default function CreateContestForm() {
           <input
             type="text"
             value={newItem}
-            onChange={(e) => setNewItem(e.target.value)}
+            onChange={handleNewItemChange}
             onKeyDown={handleItemKeyDown}
             placeholder="Nombre del participante"
             maxLength={80}
@@ -245,6 +251,16 @@ export default function CreateContestForm() {
             + Añadir
           </button>
         </div>
+
+        {itemError && (
+          <p
+            role="alert"
+            className="text-sm"
+            style={{ color: "var(--color-destructive)" }}
+          >
+            {itemError}
+          </p>
+        )}
       </div>
 
       <button

@@ -70,10 +70,10 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
-    // Verify contest exists
+    // Verify contest exists and fetch items for item_name validation
     const { data: contest, error: contestError } = await supabase
       .from("contests")
-      .select("id")
+      .select("id, items")
       .eq("id", contest_id)
       .single();
 
@@ -82,6 +82,20 @@ export const POST: APIRoute = async ({ request }) => {
         status: 404,
         headers: { "Content-Type": "application/json" },
       });
+    }
+
+    // Validate item_name belongs to this contest's participant list
+    const validItems: string[] = Array.isArray((contest as { items?: unknown }).items)
+      ? ((contest as { items: unknown[] }).items as unknown[])
+          .map((i) => String(i ?? "").trim())
+          .filter(Boolean)
+      : [];
+
+    if (validItems.length > 0 && !validItems.includes(itemName)) {
+      return new Response(
+        JSON.stringify({ error: "El participante elegido no pertenece a este concurso" }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
+      );
     }
 
     const { data, error } = await supabase

@@ -5,9 +5,10 @@
 alter table contests
   add column if not exists items text[] not null default '{}';
 
--- 2. Add item_name column to votes (which participant this vote is for)
+-- 2. Add item_name column to votes (which participant this vote is for).
+--    Nullable so existing rows are unaffected; the API enforces non-empty on new writes.
 alter table votes
-  add column if not exists item_name text not null default '';
+  add column if not exists item_name text;
 
 -- 3. Drop the old unique constraint (contest_id, guest_name) — one vote per guest per contest
 --    (PostgreSQL auto-generates the constraint name as <table>_<col1>_<col2>_key)

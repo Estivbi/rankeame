@@ -6,7 +6,7 @@ import { createClient } from "@supabase/supabase-js";
 interface Vote {
   id: string;
   guest_name: string;
-  item_name: string;
+  item_name: string | null;
   scores_json: Record<string, number>;
   created_at: string;
 }
@@ -26,10 +26,11 @@ interface LeaderboardProps {
 function computeLeaderboard(votes: Vote[]): LeaderboardEntry[] {
   if (votes.length === 0) return [];
 
-  // Group votes by item_name
+  // Group votes by item_name — skip votes with missing/blank item_name (legacy data)
   const byItem = new Map<string, number[]>();
   for (const v of votes) {
-    const itemKey = v.item_name;
+    const itemKey = (v.item_name ?? "").trim();
+    if (!itemKey) continue;
     const criteriaValues = Object.values(v.scores_json).filter(
       (s): s is number => typeof s === "number"
     );

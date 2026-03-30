@@ -15,7 +15,23 @@ export const POST: APIRoute = async ({ request }) => {
         { status: 400, headers: { "Content-Type": "application/json" } }
       );
     }
-    const items: string[] = rawItems.map((i: unknown) => String(i ?? "").trim()).filter(Boolean);
+    // Trim, filter blanks, deduplicate (preserve order, case-sensitive)
+    const seen = new Set<string>();
+    const items: string[] = [];
+    for (const raw of rawItems) {
+      const trimmed = String(raw ?? "").trim();
+      if (!trimmed) continue;
+      if (trimmed.length > 80) {
+        return new Response(
+          JSON.stringify({ error: `El nombre del participante "${trimmed.slice(0, 20)}…" supera los 80 caracteres` }),
+          { status: 400, headers: { "Content-Type": "application/json" } }
+        );
+      }
+      if (!seen.has(trimmed)) {
+        seen.add(trimmed);
+        items.push(trimmed);
+      }
+    }
     if (items.length === 0) {
       return new Response(
         JSON.stringify({ error: "Los nombres de los participantes no pueden estar vacíos" }),

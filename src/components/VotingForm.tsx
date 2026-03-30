@@ -186,6 +186,9 @@ export default function VotingForm({ contestId, contestName, criteria, items }: 
               setNameConfirmed(false);
               setVotedItems([]);
               setLastVotedItem(null);
+              setSelectedItem("");
+              setScores(buildDefaultScores(criteria));
+              setError(null);
             }
           }}
           className="text-xs underline"
