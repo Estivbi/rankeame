@@ -1,7 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 
-const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL as string;
-const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY as string;
+export const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL as string;
+export const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY as string;
 
 // Flag that API handlers can check before making database calls.
 // When false they return a 503 JSON error instead of crashing the function.
