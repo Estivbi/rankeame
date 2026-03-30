@@ -8,6 +8,21 @@ export const POST: APIRoute = async ({ request }) => {
     const body = await request.json();
     const name = (body?.name ?? "").trim();
 
+    const rawItems = body?.items;
+    if (!Array.isArray(rawItems) || rawItems.length === 0) {
+      return new Response(
+        JSON.stringify({ error: "Debes añadir al menos un participante" }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
+      );
+    }
+    const items: string[] = rawItems.map((i: unknown) => String(i ?? "").trim()).filter(Boolean);
+    if (items.length === 0) {
+      return new Response(
+        JSON.stringify({ error: "Los nombres de los participantes no pueden estar vacíos" }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
     const rawContestType = body?.contest_type;
 
     if (rawContestType !== undefined && rawContestType !== null && typeof rawContestType !== "string") {
@@ -55,8 +70,8 @@ export const POST: APIRoute = async ({ request }) => {
 
     const { data, error } = await supabase
       .from("contests")
-      .insert({ name, host_token: hostToken, contest_type })
-      .select("id, name, contest_type, created_at")
+      .insert({ name, host_token: hostToken, contest_type, items })
+      .select("id, name, contest_type, items, created_at")
       .single();
 
     if (error) {

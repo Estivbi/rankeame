@@ -6,14 +6,43 @@ import { CONTEST_TEMPLATES, type ContestType } from "../lib/contestTypes";
 export default function CreateContestForm() {
   const [name, setName] = useState("");
   const [contestType, setContestType] = useState<ContestType>("tortillas");
+  const [items, setItems] = useState<string[]>([]);
+  const [newItem, setNewItem] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const addItem = () => {
+    const trimmed = newItem.trim();
+    if (!trimmed) return;
+    if (items.includes(trimmed)) {
+      setError(`"${trimmed}" ya está en la lista de participantes.`);
+      return;
+    }
+    setItems((prev) => [...prev, trimmed]);
+    setNewItem("");
+    setError(null);
+  };
+
+  const removeItem = (index: number) => {
+    setItems((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleItemKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      addItem();
+    }
+  };
 
   const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     const trimmed = name.trim();
     if (!trimmed) {
       setError("Por favor, introduce un nombre para el concurso.");
+      return;
+    }
+    if (items.length === 0) {
+      setError("Añade al menos un participante antes de crear el concurso.");
       return;
     }
 
@@ -24,7 +53,7 @@ export default function CreateContestForm() {
       const res = await fetch("/api/contests", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: trimmed, contest_type: contestType }),
+        body: JSON.stringify({ name: trimmed, contest_type: contestType, items }),
       });
 
       const data = await res.json();
@@ -142,9 +171,85 @@ export default function CreateContestForm() {
         )}
       </div>
 
+      {/* Participantes */}
+      <div className="space-y-2">
+        <label
+          className="block text-sm font-medium"
+          style={{ color: "var(--color-foreground)" }}
+        >
+          Participantes{" "}
+          <span className="font-normal" style={{ color: "var(--color-muted-foreground)" }}>
+            (mínimo 1)
+          </span>
+        </label>
+
+        {/* List of added items */}
+        {items.length > 0 && (
+          <ul className="space-y-1.5">
+            {items.map((item, i) => (
+              <li
+                key={i}
+                className="flex items-center gap-2 rounded-lg border px-3 py-2 text-sm"
+                style={{
+                  borderColor: "var(--color-border)",
+                  backgroundColor: "var(--color-background)",
+                  color: "var(--color-foreground)",
+                }}
+              >
+                <span className="flex-1 truncate">{item}</span>
+                <button
+                  type="button"
+                  onClick={() => removeItem(i)}
+                  disabled={loading}
+                  aria-label={`Eliminar ${item}`}
+                  className="shrink-0 rounded px-1.5 py-0.5 text-xs font-semibold transition hover:opacity-75 disabled:opacity-40"
+                  style={{
+                    backgroundColor: "var(--color-destructive)",
+                    color: "#ffffff",
+                  }}
+                >
+                  ✕
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {/* Add new item */}
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={newItem}
+            onChange={(e) => setNewItem(e.target.value)}
+            onKeyDown={handleItemKeyDown}
+            placeholder="Nombre del participante"
+            maxLength={80}
+            disabled={loading}
+            className="flex-1 rounded-lg border px-4 py-2.5 text-sm outline-none transition placeholder:opacity-50 disabled:opacity-50"
+            style={{
+              borderColor: "var(--color-border)",
+              backgroundColor: "var(--color-background)",
+              color: "var(--color-foreground)",
+            }}
+          />
+          <button
+            type="button"
+            onClick={addItem}
+            disabled={loading || !newItem.trim()}
+            className="shrink-0 rounded-lg px-4 py-2.5 text-sm font-semibold transition disabled:opacity-40"
+            style={{
+              backgroundColor: "var(--color-primary)",
+              color: "var(--color-primary-foreground)",
+            }}
+          >
+            + Añadir
+          </button>
+        </div>
+      </div>
+
       <button
         type="submit"
-        disabled={loading || !name.trim()}
+        disabled={loading || !name.trim() || items.length === 0}
         className="w-full rounded-lg py-3 text-sm font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed"
         style={{
           backgroundColor: "var(--color-primary)",
