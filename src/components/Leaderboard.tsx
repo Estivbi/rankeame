@@ -6,6 +6,7 @@ import { createClient } from "@supabase/supabase-js";
 interface Vote {
   id: string;
   guest_name: string;
+  item_name: string | null;
   scores_json: Record<string, number>;
   created_at: string;
 }
@@ -25,23 +26,24 @@ interface LeaderboardProps {
 function computeLeaderboard(votes: Vote[]): LeaderboardEntry[] {
   if (votes.length === 0) return [];
 
-  // Collect all item names across all votes
-  const items = new Set<string>();
+  // Group votes by item_name — skip votes with missing/blank item_name (legacy data)
+  const byItem = new Map<string, number[]>();
   for (const v of votes) {
-    for (const key of Object.keys(v.scores_json)) {
-      items.add(key);
-    }
+    const itemKey = (v.item_name ?? "").trim();
+    if (!itemKey) continue;
+    const criteriaValues = Object.values(v.scores_json).filter(
+      (s): s is number => typeof s === "number"
+    );
+    if (criteriaValues.length === 0) continue;
+    const overallAvg = criteriaValues.reduce((a, b) => a + b, 0) / criteriaValues.length;
+    if (!byItem.has(itemKey)) byItem.set(itemKey, []);
+    byItem.get(itemKey)!.push(overallAvg);
   }
 
   const entries: LeaderboardEntry[] = [];
-  for (const item of items) {
-    const scores = votes
-      .map((v) => v.scores_json[item])
-      .filter((s): s is number => typeof s === "number");
-    if (scores.length > 0) {
-      const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
-      entries.push({ name: item, avgScore: avg, voteCount: scores.length });
-    }
+  for (const [itemName, avgs] of byItem.entries()) {
+    const avg = avgs.reduce((a, b) => a + b, 0) / avgs.length;
+    entries.push({ name: itemName, avgScore: avg, voteCount: avgs.length });
   }
 
   return entries.sort((a, b) => b.avgScore - a.avgScore);
@@ -62,7 +64,7 @@ export default function Leaderboard({
     // Initial fetch
     client
       .from("votes")
-      .select("id, guest_name, scores_json, created_at")
+      .select("id, guest_name, item_name, scores_json, created_at")
       .eq("contest_id", contestId)
       .order("created_at", { ascending: true })
       .then(({ data, error }) => {
