@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Leaderboard from "../../components/Leaderboard";
+import KofiButton from "../../components/KofiButton";
 import { supabase } from "../../lib/supabase";
 import { getTemplate } from "../../lib/contestTypes";
 
@@ -121,6 +122,9 @@ const whatsappUrl = `https://wa.me/?text=${whatsappText}`;
     >
       Emite tu voto →
     </a>
+
+    <!-- Ko-fi support button -->
+    <KofiButton client:load />
   </div>
 </BaseLayout>
 

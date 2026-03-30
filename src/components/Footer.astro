@@ -1,0 +1,22 @@
+---
+// Footer global — aparece en todas las páginas
+import KofiButton from "./KofiButton";
+---
+
+<footer class="mt-8 border-t border-[var(--color-border)] py-6 text-center">
+  <div class="max-w-md mx-auto px-4 flex flex-col items-center gap-3">
+    <p class="text-xs text-[var(--color-muted-foreground)]">
+      Desarrollado con ❤️ por{" "}
+      <a
+        href="https://stibios.com"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="font-semibold text-[var(--color-primary)] hover:underline"
+      >
+        Stibios Labs
+      </a>
+    </p>
+
+    <KofiButton size="sm" client:load />
+  </div>
+</footer>

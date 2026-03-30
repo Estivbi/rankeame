@@ -1,0 +1,166 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const web3FormsKey = import.meta.env.PUBLIC_WEB3FORMS_KEY ?? "TU_ACCESS_KEY_AQUI";
+---
+
+<BaseLayout
+  title="Contacto"
+  description="Contacta con el equipo de Rankeame para eventos B2B o soporte."
+>
+  <div class="max-w-md mx-auto px-4 py-10 space-y-6">
+    <!-- Header -->
+    <header class="text-center space-y-2">
+      <div class="text-4xl">✉️</div>
+      <h1 class="text-2xl font-extrabold text-slate-900">Contáctanos</h1>
+      <p class="text-sm text-[var(--color-muted-foreground)] leading-relaxed">
+        ¿Organizas eventos, tienes un bar o restaurante y quieres una experiencia
+        personalizada? Escríbenos — estaremos encantados de ayudarte con soluciones
+        B2B a medida o cualquier duda de soporte.
+      </p>
+    </header>
+
+    <!-- Contact form -->
+    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
+      <form
+        id="contact-form"
+        action="https://api.web3forms.com/submit"
+        method="POST"
+        class="space-y-4"
+        novalidate
+      >
+        <!-- Web3Forms access key — set PUBLIC_WEB3FORMS_KEY in your .env file -->
+        <input type="hidden" name="access_key" value={web3FormsKey} />
+        <!-- Honeypot spam filter -->
+        <input type="checkbox" name="botcheck" class="hidden" style="display:none" />
+        <!-- Redirect after submission -->
+        <input type="hidden" name="redirect" value="false" />
+
+        <!-- Nombre -->
+        <div class="space-y-1.5">
+          <label for="nombre" class="text-xs font-semibold text-slate-700">
+            Nombre
+          </label>
+          <input
+            id="nombre"
+            type="text"
+            name="name"
+            required
+            placeholder="Tu nombre"
+            class="w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-[var(--color-ring)] transition"
+          />
+        </div>
+
+        <!-- Email -->
+        <div class="space-y-1.5">
+          <label for="email" class="text-xs font-semibold text-slate-700">
+            Email
+          </label>
+          <input
+            id="email"
+            type="email"
+            name="email"
+            required
+            placeholder="tu@email.com"
+            class="w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-[var(--color-ring)] transition"
+          />
+        </div>
+
+        <!-- Mensaje -->
+        <div class="space-y-1.5">
+          <label for="mensaje" class="text-xs font-semibold text-slate-700">
+            Mensaje
+          </label>
+          <textarea
+            id="mensaje"
+            name="message"
+            required
+            rows="4"
+            placeholder="Cuéntanos cómo podemos ayudarte…"
+            class="w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-[var(--color-ring)] transition resize-none"
+          ></textarea>
+        </div>
+
+        <!-- Submit button -->
+        <button
+          type="submit"
+          id="submit-btn"
+          class="w-full rounded-xl py-3 text-sm font-bold text-white transition"
+          style="background-color: var(--color-primary);"
+        >
+          Enviar mensaje →
+        </button>
+
+        <!-- Success / error messages -->
+        <p
+          id="form-success"
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+          class="hidden text-center text-sm text-green-600 font-semibold"
+        >
+          ✅ ¡Mensaje enviado! Te responderemos pronto.
+        </p>
+        <p
+          id="form-error"
+          role="alert"
+          aria-live="assertive"
+          aria-atomic="true"
+          class="hidden text-center text-sm text-red-500 font-semibold"
+        >
+          ❌ Algo falló. Por favor inténtalo de nuevo.
+        </p>
+      </form>
+    </div>
+
+    <!-- Back link -->
+    <a
+      href="/"
+      class="block text-center text-xs text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)] transition"
+    >
+      ← Volver al inicio
+    </a>
+  </div>
+</BaseLayout>
+
+<script>
+  const form = document.getElementById("contact-form") as HTMLFormElement | null;
+  const submitBtn = document.getElementById("submit-btn") as HTMLButtonElement | null;
+  const successMsg = document.getElementById("form-success");
+  const errorMsg = document.getElementById("form-error");
+
+  form?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!form || !submitBtn) return;
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Enviando…";
+
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
+
+    try {
+      const res = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      const json = await res.json();
+
+      if (json.success) {
+        form.reset();
+        successMsg?.classList.remove("hidden");
+        errorMsg?.classList.add("hidden");
+        submitBtn.textContent = "Mensaje enviado ✓";
+      } else {
+        throw new Error("Submission failed");
+      }
+    } catch {
+      errorMsg?.classList.remove("hidden");
+      successMsg?.classList.add("hidden");
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Enviar mensaje →";
+    }
+  });
+</script>

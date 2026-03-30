@@ -1,5 +1,6 @@
 ---
 import "../styles/global.css";
+import Footer from "../components/Footer.astro";
 
 interface Props {
   title: string;
@@ -20,7 +21,8 @@ const { title, description = "Votaciones en tiempo real sin registro" } = Astro.
     <link rel="manifest" href="/manifest.webmanifest" />
     <title>{title} · Rankeame</title>
   </head>
-  <body class="min-h-screen">
+  <body class="min-h-screen flex flex-col">
     <slot />
+    <Footer />
   </body>
 </html>
