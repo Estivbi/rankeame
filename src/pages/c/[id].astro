@@ -1,9 +1,10 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Leaderboard from "../../components/Leaderboard";
-import { supabase } from "../../lib/supabase";
+import { supabase, supabaseAnonKey, supabaseUrl } from "../../lib/supabase";
 import { getTemplate } from "../../lib/contestTypes";
 import { resolvePublicOrigin } from "../../lib/siteUrl";
+import KofiButton from "@/components/KofiButton";
 
 const { id } = Astro.params;
 
