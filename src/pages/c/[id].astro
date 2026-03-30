@@ -1,7 +1,7 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Leaderboard from "../../components/Leaderboard";
-import { supabase, supabaseAnonKey, supabaseUrl } from "../../lib/supabase";
+import { supabase } from "../../lib/supabase";
 import { getTemplate } from "../../lib/contestTypes";
 import { resolvePublicOrigin } from "../../lib/siteUrl";
 
@@ -121,6 +121,9 @@ const whatsappUrl = `https://wa.me/?text=${whatsappText}`;
     >
       Emite tu voto →
     </a>
+
+    <!-- Ko-fi support button -->
+    <KofiButton client:load />
   </div>
 </BaseLayout>
 
