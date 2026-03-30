@@ -1,64 +1,21 @@
 import type { APIRoute } from "astro";
 import { supabase, isSupabaseConfigured } from "../../lib/supabase";
+import { submitVoteSchema } from "../../lib/schemas";
 
 export const POST: APIRoute = async ({ request }) => {
   try {
     const body = await request.json();
-    const { contest_id, guest_name, scores_json, item_name } = body ?? {};
 
-    if (!contest_id || typeof contest_id !== "string") {
-      return new Response(JSON.stringify({ error: "El campo contest_id es obligatorio" }), {
+    const parsed = submitVoteSchema.safeParse(body);
+    if (!parsed.success) {
+      const message = parsed.error.errors[0]?.message ?? "Solicitud inválida";
+      return new Response(JSON.stringify({ error: message }), {
         status: 400,
         headers: { "Content-Type": "application/json" },
       });
     }
 
-    const name = (guest_name ?? "").trim();
-    if (!name) {
-      return new Response(JSON.stringify({ error: "El campo guest_name es obligatorio" }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
-
-    if (name.length > 50) {
-      return new Response(
-        JSON.stringify({ error: "El nombre debe tener 50 caracteres o menos" }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
-      );
-    }
-
-    const itemName = (item_name ?? "").trim();
-    if (!itemName) {
-      return new Response(JSON.stringify({ error: "El campo item_name es obligatorio" }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
-
-    if (
-      !scores_json ||
-      typeof scores_json !== "object" ||
-      Array.isArray(scores_json) ||
-      Object.keys(scores_json).length === 0
-    ) {
-      return new Response(
-        JSON.stringify({ error: "scores_json debe ser un objeto no vacío" }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
-      );
-    }
-
-    // Validate that all score values are integers between 1 and 10
-    for (const [key, value] of Object.entries(scores_json)) {
-      if (typeof value !== "number" || !Number.isInteger(value) || value < 1 || value > 10) {
-        return new Response(
-          JSON.stringify({
-            error: `La puntuación de "${key}" debe ser un entero entre 1 y 10`,
-          }),
-          { status: 400, headers: { "Content-Type": "application/json" } }
-        );
-      }
-    }
+    const { contest_id, guest_name: name, item_name: itemName, scores_json } = parsed.data;
 
     if (!isSupabaseConfigured) {
       return new Response(
