@@ -3,7 +3,6 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import Leaderboard from "../../components/Leaderboard";
 import { supabase, supabaseAnonKey, supabaseUrl } from "../../lib/supabase";
 import { getTemplate } from "../../lib/contestTypes";
-import { resolvePublicOrigin } from "../../lib/siteUrl";
 import KofiButton from "@/components/KofiButton";
 
 const { id } = Astro.params;
@@ -22,8 +21,7 @@ if (error || !contest) {
   return Astro.redirect("/");
 }
 
-const publicOrigin = resolvePublicOrigin(Astro.url.origin);
-const voteUrl = `${publicOrigin}/vote/${id}`;
+const voteUrl = new URL(`/vote/${id}`, Astro.url.origin).toString();
 const template = getTemplate(contest.contest_type ?? "tortillas");
 const whatsappText = encodeURIComponent(`¡Únete a mi concurso en Rankeame! Vota aquí: ${voteUrl}`);
 const whatsappUrl = `https://wa.me/?text=${whatsappText}`;
