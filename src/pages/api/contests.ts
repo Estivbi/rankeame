@@ -54,6 +54,20 @@ export const POST: APIRoute = async ({ request }) => {
 
     if (error) {
       console.error("Supabase error creating contest:", error);
+
+      if (error.code === "42703") {
+        return new Response(
+          JSON.stringify({
+            error:
+              "La base de datos está desactualizada. Falta la columna contests.items. Ejecuta supabase/schema.sql en tu proyecto de Supabase.",
+          }),
+          {
+            status: 500,
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+      }
+
       return new Response(JSON.stringify({ error: "Error al crear el concurso" }), {
         status: 500,
         headers: { "Content-Type": "application/json" },

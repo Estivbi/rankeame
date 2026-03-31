@@ -69,6 +69,17 @@ export const POST: APIRoute = async ({ request }) => {
           { status: 409, headers: { "Content-Type": "application/json" } }
         );
       }
+
+      if (error.code === "42703") {
+        return new Response(
+          JSON.stringify({
+            error:
+              "La base de datos está desactualizada. Falta la columna votes.item_name o contests.items. Ejecuta supabase/schema.sql en tu proyecto de Supabase.",
+          }),
+          { status: 500, headers: { "Content-Type": "application/json" } }
+        );
+      }
+
       console.error("Supabase error submitting vote:", error);
       return new Response(JSON.stringify({ error: "Error al enviar el voto" }), {
         status: 500,
