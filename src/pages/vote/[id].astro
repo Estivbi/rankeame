@@ -12,13 +12,15 @@ if (!id) {
 
 const { data: contest, error } = await supabase
   .from("contests")
-  .select("id, name, contest_type")
+  .select("id, name, contest_type, items")
   .eq("id", id)
   .single();
 
 if (error || !contest) {
   return Astro.redirect("/");
 }
+
+const items: string[] = Array.isArray(contest.items) ? (contest.items as string[]) : [];
 
 const criteria = getCriteria(contest.contest_type ?? "tortillas");
 ---
@@ -37,12 +39,29 @@ const criteria = getCriteria(contest.contest_type ?? "tortillas");
     <section
       class="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-6"
     >
-      <VotingForm
-        contestId={contest.id}
-        contestName={contest.name}
-        criteria={criteria}
-        client:load
-      />
+      {items.length === 0 ? (
+        <div class="flex flex-col items-center gap-4 py-10 text-center">
+          <span class="text-4xl">⚠️</span>
+          <p class="text-sm font-medium text-[var(--color-muted-foreground)]">
+            Este concurso no tiene participantes definidos. El anfitrión debe añadirlos antes de poder votar.
+          </p>
+          <a
+            href={`/c/${id}`}
+            class="rounded-xl px-5 py-2.5 text-sm font-semibold"
+            style="background-color: var(--color-primary); color: var(--color-primary-foreground);"
+          >
+            Volver al concurso →
+          </a>
+        </div>
+      ) : (
+        <VotingForm
+          contestId={contest.id}
+          contestName={contest.name}
+          criteria={criteria}
+          items={items}
+          client:load
+        />
+      )}
     </section>
 
     <!-- Back link -->
@@ -51,6 +70,12 @@ const criteria = getCriteria(contest.contest_type ?? "tortillas");
       class="block text-center text-xs text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)] transition"
     >
       ← Volver a la clasificación
+    </a>
+    <a
+      href="/"
+      class="block text-center text-xs text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)] transition"
+    >
+      ← Volver al inicio
     </a>
   </div>
 </BaseLayout>
