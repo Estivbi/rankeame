@@ -1,76 +1,38 @@
 import type { APIRoute } from "astro";
 import { supabase, isSupabaseConfigured } from "../../lib/supabase";
-import { CONTEST_TYPE_IDS } from "../../lib/contestTypes";
+import { createContestSchema } from "../../lib/schemas";
 import { randomUUID } from "crypto";
 
 export const POST: APIRoute = async ({ request }) => {
   try {
     const body = await request.json();
-    const name = (body?.name ?? "").trim();
 
-    const rawItems = body?.items;
-    if (!Array.isArray(rawItems) || rawItems.length === 0) {
-      return new Response(
-        JSON.stringify({ error: "Debes añadir al menos un participante" }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
-      );
-    }
-    // Trim, filter blanks, deduplicate (preserve order, case-sensitive)
+    // Deduplicate items before validation (preserve order, case-sensitive)
+    const rawItems = Array.isArray(body?.items) ? body.items : [];
     const seen = new Set<string>();
-    const items: string[] = [];
+    const dedupedItems: string[] = [];
     for (const raw of rawItems) {
       const trimmed = String(raw ?? "").trim();
-      if (!trimmed) continue;
-      if (trimmed.length > 80) {
-        return new Response(
-          JSON.stringify({ error: `El nombre del participante "${trimmed.slice(0, 20)}…" supera los 80 caracteres` }),
-          { status: 400, headers: { "Content-Type": "application/json" } }
-        );
-      }
-      if (!seen.has(trimmed)) {
+      if (trimmed && !seen.has(trimmed)) {
         seen.add(trimmed);
-        items.push(trimmed);
+        dedupedItems.push(trimmed);
       }
     }
-    if (items.length === 0) {
-      return new Response(
-        JSON.stringify({ error: "Los nombres de los participantes no pueden estar vacíos" }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
-      );
-    }
 
-    const rawContestType = body?.contest_type;
+    const parsed = createContestSchema.safeParse({
+      ...body,
+      items: dedupedItems,
+    });
 
-    if (rawContestType !== undefined && rawContestType !== null && typeof rawContestType !== "string") {
-      return new Response(
-        JSON.stringify({ error: "El tipo de concurso debe ser una cadena de texto" }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
-      );
-    }
-
-    const contest_type =
-      typeof rawContestType === "string" ? rawContestType.trim().toLowerCase() : "tortillas";
-
-    if (!name) {
-      return new Response(JSON.stringify({ error: "El nombre del concurso es obligatorio" }), {
+    if (!parsed.success) {
+      const message = parsed.error.errors[0]?.message ?? "Solicitud inválida";
+      return new Response(JSON.stringify({ error: message }), {
         status: 400,
         headers: { "Content-Type": "application/json" },
       });
     }
 
-    if (name.length > 100) {
-      return new Response(
-        JSON.stringify({ error: "El nombre del concurso debe tener 100 caracteres o menos" }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
-      );
-    }
-
-    if (!CONTEST_TYPE_IDS.includes(contest_type as (typeof CONTEST_TYPE_IDS)[number])) {
-      return new Response(
-        JSON.stringify({ error: "Tipo de concurso no válido" }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
-      );
-    }
+    const { name, contest_type, items } = parsed.data;
 
     if (!isSupabaseConfigured) {
       return new Response(
