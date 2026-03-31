@@ -21,7 +21,19 @@ if (error || !contest) {
   return Astro.redirect("/");
 }
 
-const voteUrl = new URL(`/vote/${id}`, Astro.url.origin).toString();
+const votePath = `/vote/${id}`;
+const forwardedProto = Astro.request.headers.get("x-forwarded-proto");
+const forwardedHost = Astro.request.headers.get("x-forwarded-host") ?? Astro.request.headers.get("host");
+const candidateOrigin = forwardedHost
+  ? `${forwardedProto ?? Astro.url.protocol.replace(":", "")}://${forwardedHost}`
+  : Astro.url.origin;
+
+let voteUrl = votePath;
+try {
+  voteUrl = new URL(votePath, candidateOrigin).toString();
+} catch {
+  // Avoid 500 if platform/proxy provides a non-absolute origin.
+}
 const template = getTemplate(contest.contest_type ?? "tortillas");
 const whatsappText = encodeURIComponent(`¡Únete a mi concurso en Rankeame! Vota aquí: ${voteUrl}`);
 const whatsappUrl = `https://wa.me/?text=${whatsappText}`;
