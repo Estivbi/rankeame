@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 
 interface VotingFormProps {
   contestId: string;
@@ -20,9 +20,19 @@ export default function VotingForm({ contestId, contestName, criteria, items }: 
   const [scores, setScores] = useState<Record<string, number>>(buildDefaultScores(criteria));
   const [loading, setLoading] = useState(false);
   const [cooldown, setCooldown] = useState(false);
+  const cooldownTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [votedItems, setVotedItems] = useState<string[]>([]);
   const [lastVotedItem, setLastVotedItem] = useState<string | null>(null);
+
+  // Clear any pending cooldown timer on unmount to prevent state updates after unmount
+  useEffect(() => {
+    return () => {
+      if (cooldownTimerRef.current !== null) {
+        clearTimeout(cooldownTimerRef.current);
+      }
+    };
+  }, []);
 
   const availableItems = items.filter((i) => !votedItems.includes(i));
 
@@ -77,7 +87,7 @@ export default function VotingForm({ contestId, contestName, criteria, items }: 
 
       // 3-second cooldown to prevent accidental double-submission
       setCooldown(true);
-      setTimeout(() => setCooldown(false), 3000);
+      cooldownTimerRef.current = setTimeout(() => setCooldown(false), 3000);
     } catch {
       setError("Error de red. Por favor, inténtalo de nuevo.");
     } finally {
