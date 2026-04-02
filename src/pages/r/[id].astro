@@ -1,0 +1,57 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { supabase } from "../../lib/supabase";
+
+const { id } = Astro.params;
+
+if (!id) {
+  return Astro.redirect("/");
+}
+
+const { data: ranking, error } = await supabase
+  .from("rankings")
+  .select("id, name, description, created_at")
+  .eq("id", id)
+  .single();
+
+if (error || !ranking) {
+  return Astro.redirect("/");
+}
+---
+
+<BaseLayout title={ranking.name}>
+  <div class="max-w-md mx-auto px-4 space-y-6 py-8">
+    <!-- Header -->
+    <header class="space-y-1">
+      <p class="text-xs font-semibold uppercase tracking-widest text-[var(--color-muted-foreground)]">
+        📍 Ranking Continuo
+      </p>
+      <h1 class="text-2xl font-bold leading-tight">{ranking.name}</h1>
+      {ranking.description && (
+        <p class="text-sm text-[var(--color-muted-foreground)]">
+          {ranking.description}
+        </p>
+      )}
+    </header>
+
+    <!-- Placeholder content -->
+    <div
+      class="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-8 flex flex-col items-center text-center gap-3"
+    >
+      <div class="text-4xl">🗺️</div>
+      <h2 class="text-base font-semibold">Próximamente: Mapa y Lista de sitios</h2>
+      <p class="text-sm text-[var(--color-muted-foreground)]">
+        Pronto podrás añadir sitios al ranking, verlos en un mapa interactivo y
+        dejar comentarios y puntuaciones.
+      </p>
+    </div>
+
+    <!-- Back link -->
+    <a
+      href="/"
+      class="block text-center text-xs text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)] transition"
+    >
+      ← Volver al inicio
+    </a>
+  </div>
+</BaseLayout>

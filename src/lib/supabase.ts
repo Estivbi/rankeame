@@ -31,3 +31,30 @@ export type Vote = {
   scores_json: Record<string, number>;
   created_at: string;
 };
+
+export type Ranking = {
+  id: string;
+  name: string;
+  description: string | null;
+  host_token: string;
+  created_at: string;
+};
+
+export type Place = {
+  id: string;
+  ranking_id: string;
+  name: string;
+  lat: number | null;
+  lng: number | null;
+  address: string | null;
+  created_at: string;
+};
+
+export type Review = {
+  id: string;
+  place_id: string;
+  guest_name: string;
+  score: number | null;
+  comment: string | null;
+  created_at: string;
+};

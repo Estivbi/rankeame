@@ -1,0 +1,37 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import CreateRankingForm from "../../components/CreateRankingForm";
+---
+
+<BaseLayout
+  title="Crear Ranking · Rankeame"
+  description="Crea un ranking continuo con tu gente. Sin registro."
+>
+  <div class="max-w-md mx-auto px-4 space-y-6 py-8">
+    <!-- Header -->
+    <header class="space-y-1">
+      <p class="text-xs font-semibold uppercase tracking-widest text-[var(--color-muted-foreground)]">
+        📍 Ranking Continuo
+      </p>
+      <h1 class="text-2xl font-bold leading-tight">Crear nuevo ranking</h1>
+      <p class="text-sm text-[var(--color-muted-foreground)]">
+        Crea una lista viva con mapas, notas y comentarios de tu gente.
+      </p>
+    </header>
+
+    <!-- Form card -->
+    <div
+      class="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-6"
+    >
+      <CreateRankingForm client:load />
+    </div>
+
+    <!-- Back link -->
+    <a
+      href="/"
+      class="block text-center text-xs text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)] transition"
+    >
+      ← Volver al inicio
+    </a>
+  </div>
+</BaseLayout>
