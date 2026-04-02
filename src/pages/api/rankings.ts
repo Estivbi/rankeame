@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
 import { supabase, isSupabaseConfigured } from "../../lib/supabase";
+import { randomUUID } from "crypto";
 
 export const POST: APIRoute = async ({ request }) => {
   if (!isSupabaseConfigured) {
@@ -19,7 +20,7 @@ export const POST: APIRoute = async ({ request }) => {
     );
   }
 
-  const { name, description, host_token } = body as Record<string, unknown>;
+  const { name, description } = body as Record<string, unknown>;
 
   if (typeof name !== "string" || name.trim().length === 0) {
     return new Response(
@@ -35,19 +36,26 @@ export const POST: APIRoute = async ({ request }) => {
     );
   }
 
-  if (typeof host_token !== "string" || host_token.trim().length === 0) {
+  const trimmedDescription =
+    typeof description === "string" && description.trim().length > 0
+      ? description.trim()
+      : null;
+
+  if (trimmedDescription !== null && trimmedDescription.length > 300) {
     return new Response(
-      JSON.stringify({ error: "Token de anfitrión inválido." }),
+      JSON.stringify({ error: "La descripción no puede superar los 300 caracteres." }),
       { status: 400, headers: { "Content-Type": "application/json" } }
     );
   }
+
+  const hostToken = randomUUID();
 
   const { data, error } = await supabase
     .from("rankings")
     .insert({
       name: name.trim(),
-      description: typeof description === "string" && description.trim() ? description.trim() : null,
-      host_token: host_token.trim(),
+      description: trimmedDescription,
+      host_token: hostToken,
     })
     .select("id")
     .single();
@@ -60,7 +68,7 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   return new Response(
-    JSON.stringify({ id: data.id }),
+    JSON.stringify({ id: data.id, hostToken }),
     { status: 201, headers: { "Content-Type": "application/json" } }
   );
 };

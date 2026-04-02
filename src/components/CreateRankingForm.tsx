@@ -20,15 +20,12 @@ export default function CreateRankingForm() {
     setError(null);
 
     try {
-      const hostToken = crypto.randomUUID();
-
       const res = await fetch("/api/rankings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: trimmedName,
-          description: description.trim() || null,
-          host_token: hostToken,
+          description: description.trim() ? description.trim() : null,
         }),
       });
 
@@ -40,7 +37,7 @@ export default function CreateRankingForm() {
       }
 
       // Persist host token in localStorage
-      localStorage.setItem(`hostToken:ranking:${data.id}`, hostToken);
+      localStorage.setItem(`hostToken:ranking:${data.id}`, data.hostToken);
 
       // Redirect to the ranking dashboard
       window.location.href = `/r/${data.id}`;
