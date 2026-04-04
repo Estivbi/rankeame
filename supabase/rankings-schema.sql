@@ -4,8 +4,8 @@
 -- Rankings table: stores each long-term ranking created by a host.
 create table if not exists rankings (
   id          uuid primary key default gen_random_uuid(),
-  name        text not null,
-  description text,
+  name        text not null check (char_length(name) <= 100),
+  description text check (description is null or char_length(description) <= 300),
   host_token  text not null,  -- token opaco guardado en localStorage del anfitrión
   created_at  timestamptz not null default now()
 );
@@ -14,7 +14,7 @@ create table if not exists rankings (
 create table if not exists places (
   id          uuid primary key default gen_random_uuid(),
   ranking_id  uuid not null references rankings(id) on delete cascade,
-  name        text not null,
+  name        text not null check (char_length(name) <= 100),
   lat         numeric,        -- Latitud para el mapa futuro
   lng         numeric,        -- Longitud para el mapa futuro
   address     text,
@@ -25,8 +25,8 @@ create table if not exists places (
 create table if not exists reviews (
   id          uuid primary key default gen_random_uuid(),
   place_id    uuid not null references places(id) on delete cascade,
-  guest_name  text not null,
-  score       numeric check (score >= 1 and score <= 10),
+  guest_name  text not null check (char_length(guest_name) <= 50),
+  score       numeric not null check (score >= 1 and score <= 10),
   comment     text,
   created_at  timestamptz not null default now()
 );
@@ -40,16 +40,27 @@ alter table rankings enable row level security;
 alter table places enable row level security;
 alter table reviews enable row level security;
 
--- Rankings: anyone can create and read (Zero Auth MVP).
+-- Rankings: anyone can insert. Public reads go through the view below,
+-- which excludes the private host_token column.
 drop policy if exists "Anyone can create a ranking" on rankings;
 create policy "Anyone can create a ranking"
   on rankings for insert
   with check (true);
 
+-- Revoke direct SELECT on the base table so that host_token stays private.
 drop policy if exists "Anyone can read a ranking" on rankings;
-create policy "Anyone can read a ranking"
-  on rankings for select
-  using (true);
+revoke select on rankings from anon, authenticated;
+
+-- Public view that exposes ranking metadata without the host token.
+create or replace view public_rankings as
+  select
+    id,
+    name,
+    description,
+    created_at
+  from rankings;
+
+grant select on public_rankings to anon, authenticated;
 
 -- Places: anyone can create and read.
 drop policy if exists "Anyone can create a place" on places;
@@ -80,3 +91,4 @@ create policy "Anyone can read reviews"
   using (
     exists (select 1 from places where id = reviews.place_id)
   );
+

@@ -9,7 +9,7 @@ if (!id) {
 }
 
 const { data: ranking, error } = await supabase
-  .from("rankings")
+  .from("public_rankings")
   .select("id, name, description, created_at")
   .eq("id", id)
   .single();
